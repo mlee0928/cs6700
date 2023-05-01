@@ -55,6 +55,46 @@ submission = reddit.submission("v1jln5")
 for top_level_comment in submission.comments:
     print(top_level_comment.body)
 
-hot_posts = reddit.subreddit('all').hot(limit=10)
+hot_posts = reddit.subreddit('news').hot(limit=10)
+"""
+top_ten = {
+    top_level_comment1: {
+        second_level_comment1: {
+            [
+                third_level_comment1,
+                third_level_comment2
+            ]
+        },
+        second_level_comment2: {
+            [
+                third_level_comment3,
+                third_level_comment4
+            ]
+        }
+    },
+    top_level_comment2: {
+        ...
+    }
+}
+"""
+top_ten = {}
 for post in hot_posts:
-    print(post)
+    print("post id:", post)
+    submission = reddit.submission(post)
+    # TODO: randomly extract 10 comments and get all subthreads until level 3
+    submission.comments.replace_more()
+    # submission.replace_more_comments(limit=None, threshold=0)
+    post_id = str(post)
+    top_ten[post_id] = {}
+    for top_level_comment in submission.comments:
+        top = str(top_level_comment.body)
+        top_ten[post_id][top] = {}
+        for second_level_comment in top_level_comment.replies:
+            second = str(second_level_comment.body)
+            top_ten[post_id][top][second] = []
+            for third_level_comment in second_level_comment.replies:
+                third = third_level_comment.body
+                top_ten[post_id][top][second].append(third)
+print(top_ten)
+with open("top_ten.json", "w", encoding="utf-8") as f:
+    json.dump(top_ten, f)
