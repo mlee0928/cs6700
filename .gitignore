@@ -1,5 +1,6 @@
 access_vars.json
 .idea/
+key.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
