@@ -77,6 +77,7 @@ top_ten = {
     }
 }
 """
+# TODO: add original post
 top_ten = {}
 for post in hot_posts:
     print("post id:", post)
