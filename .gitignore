@@ -1,6 +1,9 @@
 access_vars.json
 .idea/
-key.txt
+*key.txt
+openai-quickstart-node/
+node_modules/
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -131,3 +134,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/openai-quickstart-node/
