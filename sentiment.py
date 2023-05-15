@@ -1,5 +1,12 @@
 from transformers import pipeline
 import json
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+import re
+
+nltk.download('stopwords')
+nltk.download('punkt')
 
 models = ["textattack/roberta-base-imdb", "textattack/roberta-base-rotten-tomatoes",
           "finiteautomata/bertweet-base-sentiment-analysis"]
@@ -38,8 +45,24 @@ my_list = [s for s in quotes_list if len(s) <= 128]
 # Search for quotes in the data structure
 find_quotes(data, quotes_list)
 
-for text in quotes_list[1:7]:
-    result = sentiment_analysis(text)[0]
+stop_words = set(stopwords.words('english'))
+
+def filter_stop(sentence):
+    word_tokens = word_tokenize(sentence)
+    filtered_sentence = [w for w in word_tokens if not w.lower() in stop_words]
+    filtered_sentence = " ".join(filtered_sentence)
+    print(filtered_sentence)
+    filtered_sentence = re.sub("[^A-Za-z0-9 -]", "", filtered_sentence)
+    return filtered_sentence
+
+
+quotes_list = [filter_stop(q) for q in quotes_list]
+
+for text in quotes_list:
+    if len(text) > 128:
+        print(len(text))
+    # TODO: split text into sections, accumulate neg and pos score to det neg or pos, if none, neutral
+    result = sentiment_analysis(text[:128])[0]
     print(text)
     print(f"Sentiment: {result['label']}, Score: {result['score']}\n")
 
