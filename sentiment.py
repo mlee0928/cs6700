@@ -3,7 +3,7 @@ import json
 # import nltk
 # from nltk.corpus import stopwords
 # from nltk.tokenize import word_tokenize
-# import re
+import re
 
 # nltk.download('stopwords')
 # nltk.download('punkt')
@@ -47,16 +47,16 @@ find_quotes(data, quotes_list)
 
 # stop_words = set(stopwords.words('english'))
 
-# def filter_stop(sentence):
-#     word_tokens = word_tokenize(sentence)
-#     filtered_sentence = [w for w in word_tokens if not w.lower() in stop_words]
-#     filtered_sentence = " ".join(filtered_sentence)
-#     # print(filtered_sentence)
-#     filtered_sentence = re.sub("[^A-Za-z0-9 -]", "", filtered_sentence)
-#     return filtered_sentence
+def filter_sent(sentence):
+    # word_tokens = word_tokenize(sentence)
+    # filtered_sentence = [w for w in word_tokens if not w.lower() in stop_words]
+    # filtered_sentence = " ".join(filtered_sentence)
+    # print(filtered_sentence)
+    filtered_sentence = re.sub("[^A-Za-z0-9 ]", "", sentence)
+    return filtered_sentence
 
 
-# quotes_list = [filter_stop(q) for q in quotes_list]
+quotes_list = [filter_sent(q) for q in quotes_list]
 
 def get_emotion(text):
     acc = 0
@@ -89,7 +89,7 @@ quote_dict = {}
 for text in quotes_list:
     label, score = get_emotion(text)
     # print(f"Sentiment: {label}, Score: {score}\n")
-    quote_dict[text] = (label, score)
+    quote_dict[f"{text}"] = (label, score)
 
 with open("quote_sentiment.json", "w") as f:
     json.dump(quote_dict, f)
