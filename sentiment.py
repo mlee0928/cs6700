@@ -1,12 +1,12 @@
 from transformers import pipeline
 import json
-import nltk
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-import re
+# import nltk
+# from nltk.corpus import stopwords
+# from nltk.tokenize import word_tokenize
+# import re
 
-nltk.download('stopwords')
-nltk.download('punkt')
+# nltk.download('stopwords')
+# nltk.download('punkt')
 
 models = ["textattack/roberta-base-imdb", "textattack/roberta-base-rotten-tomatoes",
           "finiteautomata/bertweet-base-sentiment-analysis"]
@@ -40,31 +40,59 @@ with open('sample.json', 'r') as f:
 quotes_list = []
 
 # Remove >128
-my_list = [s for s in quotes_list if len(s) <= 128]
+# my_list = [s for s in quotes_list if len(s) <= 128]
 
 # Search for quotes in the data structure
 find_quotes(data, quotes_list)
 
-stop_words = set(stopwords.words('english'))
+# stop_words = set(stopwords.words('english'))
 
-def filter_stop(sentence):
-    word_tokens = word_tokenize(sentence)
-    filtered_sentence = [w for w in word_tokens if not w.lower() in stop_words]
-    filtered_sentence = " ".join(filtered_sentence)
-    print(filtered_sentence)
-    filtered_sentence = re.sub("[^A-Za-z0-9 -]", "", filtered_sentence)
-    return filtered_sentence
+# def filter_stop(sentence):
+#     word_tokens = word_tokenize(sentence)
+#     filtered_sentence = [w for w in word_tokens if not w.lower() in stop_words]
+#     filtered_sentence = " ".join(filtered_sentence)
+#     # print(filtered_sentence)
+#     filtered_sentence = re.sub("[^A-Za-z0-9 -]", "", filtered_sentence)
+#     return filtered_sentence
 
 
-quotes_list = [filter_stop(q) for q in quotes_list]
+# quotes_list = [filter_stop(q) for q in quotes_list]
 
+def get_emotion(text):
+    acc = 0
+    count = int(len(text) / 128) + 1
+    pos = [0, 0]
+    neg = [0, 0]
+    for i in range(count):
+        start = int(128 * i)
+        end = min(int(128 * (i + 1)), len(text))
+        # print(start, end)
+        result = sentiment_analysis(text[start:end])[0]
+        # print(result)
+        if result['label'] == 'POS':
+            acc += result['score']
+            pos[0] += result['score']
+            pos[1] += 1
+        elif result['label'] == 'NEG':
+            acc -= result['score']
+            neg[0] += result['score']
+            neg[1] += 1
+
+    if acc == 0:
+        return 'NEU', acc
+    elif acc > 0:
+        return 'POS', pos[0] / pos[1]
+    else:
+        return 'NEG', neg[0] / neg[1]
+
+quote_dict = {}
 for text in quotes_list:
-    if len(text) > 128:
-        print(len(text))
-    # TODO: split text into sections, accumulate neg and pos score to det neg or pos, if none, neutral
-    result = sentiment_analysis(text[:128])[0]
-    print(text)
-    print(f"Sentiment: {result['label']}, Score: {result['score']}\n")
+    label, score = get_emotion(text)
+    # print(f"Sentiment: {label}, Score: {score}\n")
+    quote_dict[text] = (label, score)
+
+with open("quote_sentiment.json", "w") as f:
+    json.dump(quote_dict, f)
 
 
 # quote_dict = {}
