@@ -1,5 +1,6 @@
 import openai
 import re
+import json
 
 with open("openai_key.txt") as f:
     key = f.readline().strip()
@@ -11,22 +12,29 @@ def generatePrompt(summary):
     return f"{summary}\\n\\nTl;dr"
 
 def generateSentimentPrompt(text, sent):
-    prompt = f"These are quotes from various people about an article. {text}." \
-             f"All of these comments have {sent} sentiment, please summarize what " \
-             f"these people think about the article."
+    prompt = f"This a combination of people commenting on a thread. {text}." \
+             f"Please summarize what " \
+             f"these people are discussing."
     return prompt
 
+def generateSummaryPrompt(text):
+    prompt = f"This a combination of people commenting on a thread. {text}." \
+             f"Please summarize what " \
+             f"these people are discussing."
+    return prompt
 
-sample_text = "I remember reading about a minimum security prison escape in Colorado years ago. Dude was " \
-              "Mexican and he left detailed maps all over his cell with the route he was going to take to " \
-              "Canada. Yea, they had road blocks all they way to Canada and never found him."
+def generateDetailsPrompt(text):
+    prompt = f"This a combination of people commenting on a thread. {text}." \
+             f"Please give me some specific details on what " \
+             f"these people are discussing."
+    return prompt
 
 def summarizer(prompt, temp=0.7):
     response = openai.Completion.create(
         # TODO: change to gpt-4
         # TODO: try different temperature (0 is conservative, 1 is creative)
         model="text-davinci-003",
-        prompt=generatePrompt(prompt),
+        prompt=prompt,
         temperature=temp,
         max_tokens=200,
         top_p=1.0,
@@ -59,4 +67,10 @@ def sentiment_summ(prompt, sent, temp=0.7):
 
     return result
 
-# print(summarizer(sample_text))
+with open('clump.json', 'r') as f:
+    clum_dict = json.load(f)
+
+for thread_id in clum_dict:
+    print(f"Thread_id: {thread_id}\n\
+    Summary:\n {summarizer(generateSummaryPrompt(clum_dict[thread_id]))}\n \
+    Details:\n {summarizer(generateDetailsPrompt(clum_dict[thread_id]))}\n\n")
