@@ -12,9 +12,9 @@ def generatePrompt(summary):
     return f"{summary}\\n\\nTl;dr"
 
 def generateSentimentPrompt(text, sent):
-    prompt = f"This a combination of people commenting on a thread. {text}." \
-             f"Please summarize what " \
-             f"these people are discussing."
+    prompt = f"These are quotes from various people about an article. {text}." \ 
+             f"All of these comments have {sent} sentiment, please summarize what " \ 
+             f"these people think about the article."
     return prompt
 
 def generateSummaryPrompt(text):
